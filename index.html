@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KiKi - Diary Home</title>
+<style>
+  :root {
+    --day-sky: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);
+    --night-sky: radial-gradient(circle at center, #1a1b3a 0%, #050505 100%);
+    --btn-glass: rgba(255, 255, 255, 0.1);
+    --btn-border: rgba(255, 255, 255, 0.2);
+    --text-color: white;
+  }
+
+  body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-color);
+    transition: background 1s ease;
+  }
+
+  /* ☀️ DAY MODE STYLES */
+  body.day {
+    background: var(--day-sky);
+  }
+  body.day .moon, body.day .star { display: none; }
+  body.day .sun { display: block; }
+  body.day .jungle { fill: #2d5a27; } /* Green Trees */
+  body.day .glass-card { background: rgba(255, 255, 255, 0.25); border: 1px solid rgba(255,255,255,0.6); }
+  body.day h1 { text-shadow: 0 0 10px rgba(255, 255, 0, 0.4); }
+
+  /* 🌙 NIGHT MODE STYLES */
+  body.night {
+    background: var(--night-sky);
+  }
+  body.night .sun { display: none; }
+  body.night .moon, body.night .star { display: block; }
+  body.night .jungle { fill: #0a0a12; } /* Dark Trees */
+  body.night .glass-card { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(136, 204, 255, 0.1); }
+  body.night h1 { text-shadow: 0 0 15px rgba(136, 204, 255, 0.4); }
+
+  /* 🌌 HEAVENLY BODIES */
+  .sun {
+    position: absolute;
+    top: 10%;
+    right: 15%;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, #ffd700, #ffaa00);
+    border-radius: 50%;
+    box-shadow: 0 0 40px #ffd700;
+    animation: pulse 4s infinite alternate;
+  }
+
+  .moon {
+    position: absolute;
+    top: 10%;
+    right: 15%;
+    width: 60px;
+    height: 60px;
+    background: transparent;
+    border-radius: 50%;
+    box-shadow: -15px 15px 0 0 #f6f1d5; /* Crescent Shape */
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+  }
+
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: twinkle 3s infinite ease-in-out;
+  }
+
+  /* 🌳 JUNGLE BACKGROUND */
+  .jungle-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* 🪟 MAIN UI CARD */
+  .glass-card {
+    z-index: 10;
+    padding: 40px;
+    border-radius: 24px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    text-align: center;
+    width: 85%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+    animation: floatUp 0.8s ease-out;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin: 0 0 10px 0;
+    font-weight: 300;
+    letter-spacing: 4px;
+  }
+
+  .quote {
+    font-size: 0.95rem;
+    font-style: italic;
+    opacity: 0.9;
+    margin-bottom: 30px;
+    line-height: 1.5;
+    min-height: 50px; /* Prevent layout jump */
+  }
+
+  /* 🔘 BUTTONS */
+  .btn-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  a.btn {
+    text-decoration: none;
+    color: white;
+    padding: 15px;
+    border-radius: 50px;
+    background: var(--btn-glass);
+    border: 1px solid var(--btn-border);
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  a.btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+
+  /* ANIMATIONS */
+  @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+  @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+  @keyframes floatUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+</style>
+</head>
+<body class="night"> <div class="sun"></div>
+  <div class="moon"></div>
+  <div id="stars-container"></div>
+
+  <div class="glass-card">
+    <h1>KiKi 🍃</h1>
+    <div class="quote" id="daily-quote">Loading wisdom...</div>
+    
+    <div class="btn-container">
+      <a href="read.html" class="btn">
+        📖 Read Old Diaries
+      </a>
+      <a href="write.html" class="btn">
+        ✏️ Write New Diary
+      </a>
+    </div>
+  </div>
+
+  <svg class="jungle-container" viewBox="0 0 1440 320" preserveAspectRatio="none">
+    <path class="jungle" fill-opacity="1" d="M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,197.3C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+    <path class="jungle" fill-opacity="0.6" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,208C1248,192,1344,192,1392,192L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+  </svg>
+
+<script>
+  // 1. 🕒 Time Logic (Nepal based styling)
+  function setTimeTheme() {
+    const now = new Date();
+    const hour = now.getHours();
+    const body = document.body;
+
+    // Assuming Day is 6 AM to 6 PM (18:00)
+    if (hour >= 6 && hour < 18) {
+      body.classList.remove('night');
+      body.classList.add('day');
+      document.getElementById('stars-container').innerHTML = ''; // Clear stars
+    } else {
+      body.classList.remove('day');
+      body.classList.add('night');
+      generateStars(); // Add stars
+    }
+  }
+
+  // 2. ✨ Generate Stars for Night Mode
+  function generateStars() {
+    const container = document.getElementById('stars-container');
+    if(container.children.length > 0) return; // Don't duplicate
+
+    for (let i = 0; i < 50; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      
+      // Random position
+      const xy = Math.random() * 100;
+      const duration = Math.random() * 3 + 2; // Random blink speed
+      const size = Math.random() * 2 + 1; // Random size
+
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 60 + '%'; // Only top 60% of screen
+      star.style.width = size + 'px';
+      star.style.height = size + 'px';
+      star.style.animationDuration = duration + 's';
+      
+      container.appendChild(star);
+    }
+  }
+
+  // 3. 💬 Daily Motivational Quotes
+  const quotes = [
+    "The sun always rises, even after the darkest night.",
+    "Breathe, Boss. You are doing better than you think.",
+    "Kehi chaina, sabai thik huncha. (Nothing is wrong, everything will be okay.)",
+    "Your heart is a garden, tend to it gently.",
+    "Even the moon passes through phases to return to full.",
+    "Today is a new chance to rewrite your story.",
+    "Strong back, soft front, wild heart.",
+    "Hijo gayo, Aaja naya cha. (Yesterday is gone, today is new.)",
+    "Peace comes from within. Do not seek it without.",
+    "Stars can't shine without darkness."
+  ];
+
+  function setQuote() {
+    // Pick a random quote based on the day so it stays same for the day (optional)
+    // Or just random every refresh:
+    const randomIndex = Math.floor(Math.random() * quotes.length);
+    document.getElementById('daily-quote').innerText = `"${quotes[randomIndex]}"`;
+  }
+
+  // Run on Load
+  window.onload = () => {
+    setTimeTheme();
+    setQuote();
+  };
+
+</script>
+</body>
+</html>
