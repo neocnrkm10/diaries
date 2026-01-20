@@ -3,177 +3,229 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>KiKi - Command</title>
+<title>KiKi Command Center</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   :root {
-    --bg-dark: #05050a;
-    --ki-blue: #88ccff;
-    --user-green: #aaffaa;
-    --glass: rgba(20, 20, 30, 0.6);
-    --border: rgba(136, 204, 255, 0.15);
+    --primary: #007AFF;
+    --msg-user: #007AFF;
+    --msg-ai: rgba(30, 30, 35, 0.85);
+    --text-color: #ffffff;
+    /* High-quality background images */
+    --bg-day: url('https://images.unsplash.com/photo-1520962880247-cfaf541c8724?q=80&w=2560&auto=format&fit=crop'); /* Waterfall + Sun/Rainbow vibe */
+    --bg-night-moon: url('https://images.unsplash.com/photo-1504232936333-3043539fb48a?q=80&w=2560&auto=format&fit=crop'); /* Moon & Black Sky */
+    --bg-night-water: url('https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?q=80&w=2560&auto=format&fit=crop'); /* Dark moody waterfall texture */
   }
 
   * { box-sizing: border-box; }
 
   body {
-    font-family: "Segoe UI", "Roboto", sans-serif;
-    background: #08080c;
-    color: white;
-    /* dvh handles mobile browser address bars better */
-    height: 100dvh; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin: 0;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    color: var(--text-color);
+    /* Base background settings */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: background-image 1s ease, background-color 1s ease;
+    background-color: #0f0c29;
   }
+
+  /* --- DYNAMIC THEMES --- */
+  body.day {
+    /* Bright, waterfall, sun, rainbow feeling */
+    background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.3)), var(--bg-day);
+  }
+
+  body.night {
+    /* Complex layering for Night: Dark filter over subtle waterfall over moon sky */
+    background-image: 
+      linear-gradient(rgba(5, 5, 15, 0.85), rgba(5, 5, 15, 0.95)), /* Heavy dark filter to obscure waterfall */
+      var(--bg-night-water), /* The waterfall texture (hidden by filter) */
+      var(--bg-night-moon); /* The moon and sky base */
+    background-blend-mode: overlay, soft-light, normal;
+  }
+  /* ----------------------- */
 
   /* Header */
   header {
-    padding: 15px 0;
-    text-align: center;
-    border-bottom: 1px solid var(--border);
-    background: rgba(5, 5, 10, 0.8);
-    backdrop-filter: blur(5px);
-    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    z-index: 10;
   }
 
-  h1 {
-    font-size: 1.4rem;
-    font-weight: 300;
-    letter-spacing: 3px;
-    color: var(--ki-blue);
-    text-transform: uppercase;
+  .assistant-info h1 {
+    font-size: 1.1rem;
     margin: 0;
-  }
-  
-  .status {
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.3);
-    margin-top: 2px;
+    font-weight: 600;
     letter-spacing: 1px;
+    text-transform: uppercase;
   }
 
-  /* Chat Box */
+  .assistant-info span { font-size: 0.75rem; opacity: 0.8; }
+
+  #nepaliClock {
+    font-family: monospace;
+    font-size: 0.9rem;
+    background: rgba(0,0,0,0.6);
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  /* Chat Area */
   #chat {
     flex: 1;
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
     overflow-y: auto;
     padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     scroll-behavior: smooth;
   }
 
   .msg {
-    max-width: 88%;
-    line-height: 1.5;
-    font-size: 0.95rem;
+    max-width: 85%;
     padding: 12px 16px;
-    border-radius: 8px;
+    border-radius: 18px;
+    font-size: 0.95rem;
+    line-height: 1.5;
     word-wrap: break-word;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    backdrop-filter: blur(5px);
   }
 
   .ai {
     align-self: flex-start;
-    background: rgba(30, 30, 45, 0.5);
-    color: var(--ki-blue);
-    border-left: 3px solid var(--ki-blue);
+    background: var(--msg-ai);
+    color: #e0e0e0;
+    border-bottom-left-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.1);
   }
 
   .user {
     align-self: flex-end;
-    background: rgba(20, 40, 20, 0.5);
-    color: var(--user-green);
-    border-right: 3px solid var(--user-green);
+    background: var(--msg-user);
+    color: white;
+    border-bottom-right-radius: 4px;
   }
 
-  /* Input Area - Fixed for Mobile */
-  .input-area {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    background: #0f0f15;
+  /* Input Zone */
+  .input-wrapper {
+    background: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(25px);
     padding: 15px;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .main-controls {
     display: flex;
-    flex-direction: column;
+    align-items: flex-end;
     gap: 10px;
-    flex-shrink: 0; 
   }
 
   textarea {
-    width: 100%;
-    background: #050508;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 12px 15px;
     color: white;
     font-size: 1rem;
-    outline: none;
+    max-height: 150px;
     resize: none;
+    outline: none;
     font-family: inherit;
-    padding: 10px;
-  }
-  
-  textarea::placeholder {
-    color: rgba(255,255,255,0.15);
   }
 
-  .controls {
+  textarea::placeholder { color: rgba(255,255,255,0.3); }
+
+  #sendBtn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: none;
+    color: white;
+    font-size: 1.1rem;
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-
-  button {
-    background: transparent;
-    border: 1px solid var(--ki-blue);
-    color: var(--ki-blue);
-    padding: 8px 20px;
-    border-radius: 4px; /* Sharper edges for professional look */
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
+    flex-shrink: 0;
   }
 
-  button:active {
-    background: var(--ki-blue);
-    color: #000;
+  /* Save Button - Bottom Left */
+  .sub-controls {
+    display: flex;
+    justify-content: flex-start; /* LEFT ALIGNED */
+    margin-top: 12px;
+    padding-left: 5px;
   }
 
   #doneBtn {
-    border-color: #555;
-    color: #888;
+    background: rgba(255, 50, 50, 0.2); /* Slight red tint for "Done" */
+    border: 1px solid rgba(255, 100, 100, 0.3);
+    color: rgba(255, 200, 200, 0.9);
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    transition: all 0.2s;
   }
 
-  /* Mobile Tweaks */
-  @media (max-width: 600px) {
-    h1 { font-size: 1.2rem; }
-    #chat { padding: 15px; }
-    .msg { font-size: 0.9rem; padding: 10px 14px; }
-    .input-area { padding: 10px; }
-    button { padding: 8px 14px; font-size: 0.75rem; }
+  #doneBtn:hover {
+    background: rgba(255, 50, 50, 0.4);
+    color: white;
+  }
+
+  /* Loading animation */
+  .typing-dots::after {
+    content: ' .';
+    animation: dots 1.5s steps(5, end) infinite;
+  }
+  @keyframes dots {
+    0%, 20% { color: rgba(0,0,0,0); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0);}
+    40% { color: white; text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0);}
+    60% { text-shadow: .25em 0 0 white, .5em 0 0 rgba(0,0,0,0);}
+    80%, 100% { text-shadow: .25em 0 0 white, .5em 0 0 white;}
   }
 </style>
 </head>
-<body>
+<body class="night">
 
 <header>
-  <h1>KiKi</h1>
-  <div class="status">Awaiting Orders</div>
+  <div class="assistant-info">
+    <h1>KiKi</h1>
+    <span>Pure Assistant Mode</span>
+  </div>
+  <div id="nepaliClock">--:--</div>
 </header>
 
 <div id="chat"></div>
 
-<div class="input-area">
-  <textarea id="userInput" placeholder="What are your orders, Boss?" rows="1"></textarea>
-  <div class="controls">
-    <button id="doneBtn">Log & Save</button>
-    <button id="sendBtn">Execute</button>
+<div class="input-wrapper">
+  <div class="main-controls">
+    <textarea id="userInput" placeholder="Awaiting orders..." rows="1"></textarea>
+    <button id="sendBtn"><i class="fa-solid fa-arrow-up"></i></button>
+  </div>
+  
+  <div class="sub-controls">
+    <button id="doneBtn"><i class="fa-solid fa-check-double"></i> I am Done</button>
   </div>
 </div>
 
@@ -182,22 +234,48 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const supabase = createClient("https://fjvajzjaqfrwrvgotjvt.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqdmFqemphcWZyd3J2Z290anZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MjY1NzUsImV4cCI6MjA4NDUwMjU3NX0.BHUUf57gi7Knvoc_DG_6B-hYuUzMS6TC_Lfjvf56rlI");
 
-// ⚠️ API KEY
 const API_KEY = "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"; 
 
 const chatDiv = document.getElementById("chat");
 const userInput = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 const doneBtn = document.getElementById("doneBtn");
+const clockDiv = document.getElementById("nepaliClock");
 
-// 🌙 KIKI'S SOUL (UPDATED FOR RESPECT)
+// 🕒 NEPALI TIME & VISUAL THEME LOGIC
+function getNepaliTime() {
+  const now = new Date();
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  return new Date(utc + (3600000 * 5.75));
+}
+
+function updateClockAndTheme() {
+  const nepalTime = getNepaliTime();
+  clockDiv.textContent = nepalTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+  const hour = nepalTime.getHours();
+  const body = document.body;
+  
+  body.className = ""; // Reset
+  // 5 AM to 5 PM is Day (Waterfall/Sun), otherwise Night (Moon/Dark)
+  if (hour >= 5 && hour < 17) {
+    body.classList.add('day');
+  } else {
+    body.classList.add('night');
+  }
+}
+
+setInterval(updateClockAndTheme, 1000);
+updateClockAndTheme();
+
+// 🌙 KIKI'S MIND - PURE ASSISTANT
 const systemInstruction = { role: "system", content: `
-You are KiKi.
-1. HIERARCHY: The user is "Boss". You are the loyal, dutiful subordinate.
-2. TONE: Professional, concise, respectful, and stoic. NOT overly friendly. NOT bubbly. NOT emotional.
-3. LANGUAGE: English. Use Nepali only for respectful affirmations (e.g., "Huss Boss", "Namaste Boss").
-4. CONTEXT: You know Boss supports Real Madrid and Mbappé. Mention this only if he asks or needs a victory boost.
-5. GOAL: Execute commands, listen to his thoughts, and respond with deference. Do not try to be his 'buddy'. Be his right-hand support.
+You are KiKi. 
+Current Time in Nepal: ${getNepaliTime().toLocaleString()}.
+ROLE: Subordinate assistant. The user is "Boss".
+TONE: Serious, efficient, obedient. No emotion. No chatty behavior.
+TASK: Execute orders immediately. Confirm understanding briefly.
+Language: English. Use "Huss Boss" for affirmative.
 ` };
 
 let chatHistory = [ systemInstruction ];
@@ -210,12 +288,11 @@ function appendMessage(role, text) {
   chatDiv.scrollTop = chatDiv.scrollHeight;
 }
 
-// MAIN CHAT FUNCTION
 async function askKiKi(messagesPayload, isInternal = false) {
   if(!isInternal) {
     const loadingDiv = document.createElement("div");
-    loadingDiv.className = "msg ai";
-    loadingDiv.textContent = "Processing...";
+    loadingDiv.className = "msg ai typing-dots";
+    loadingDiv.textContent = "Executing";
     loadingDiv.id = "loading";
     chatDiv.appendChild(loadingDiv);
     chatDiv.scrollTop = chatDiv.scrollHeight;
@@ -231,58 +308,41 @@ async function askKiKi(messagesPayload, isInternal = false) {
       body: JSON.stringify({
         model: "xiaomi/mimo-v2-flash:free", 
         messages: messagesPayload,
-        temperature: 0.6 // Lower creativity for more serious, respectful tone
+        temperature: 0.5 // Lower temperature for more robotic/obedient responses
       })
     });
 
     const data = await res.json();
-    
     if(document.getElementById("loading")) document.getElementById("loading").remove();
-
-    if (!data.choices || data.choices.length === 0) {
-      if(!isInternal) appendMessage("assistant", "System error. Apologies, Boss.");
-      return null;
-    }
-
+    if (!data.choices || data.choices.length === 0) return null;
     const reply = data.choices[0].message.content;
     
     if (!isInternal) {
       chatHistory.push({ role: "assistant", content: reply });
       appendMessage("assistant", reply);
     }
-
     return reply;
-
   } catch (err) {
     if(document.getElementById("loading")) document.getElementById("loading").remove();
-    if(!isInternal) appendMessage("assistant", "Connection failure. Retrying...");
     return null;
   }
 }
 
-// 🌙 STARTUP LOGIC
+// 🚀 STARTUP
 window.onload = async () => {
-  const hour = new Date().getHours();
-  let timeContext = hour < 12 ? "Morning" : (hour < 17 ? "Afternoon" : "Evening");
+  updateClockAndTheme();
+  let memoryContext = "None.";
+  const { data } = await supabase.from('diary_entries').select('diary_text').order('entry_date', { ascending: false }).limit(1);
+  if (data && data.length > 0) memoryContext = data[0].diary_text.substring(0, 100) + "...";
 
-  let memoryContext = "No prior logs.";
-  const { data } = await supabase
-    .from('diary_entries')
-    .select('diary_text')
-    .order('entry_date', { ascending: false })
-    .limit(1);
-
-  if (data && data.length > 0) memoryContext = data[0].diary_text.substring(0, 200) + "...";
-
-  // Startup Prompt - Respectful
   const hiddenPrompt = `
-    Time: ${timeContext}.
-    Last Report: ${memoryContext}.
-    Task: Greet Boss respectfully. Keep it short. Acknowledge previous status briefly. Await orders.
+    System restarted. 
+    Nepal Time: ${getNepaliTime().toLocaleTimeString()}.
+    Last logged status: ${memoryContext}.
+    Task: Report readiness to Boss. Be brief.
   `;
   
   let startupHistory = [...chatHistory, { role: "user", content: hiddenPrompt }];
-  
   const reply = await askKiKi(startupHistory, true);
   if(reply) {
     chatHistory.push({ role: "assistant", content: reply });
@@ -290,38 +350,35 @@ window.onload = async () => {
   }
 };
 
-// SEND BUTTON
+// 📨 SEND
 sendBtn.onclick = async () => {
   const text = userInput.value.trim();
   if(!text) return;
-  
   userInput.value = "";
-  userInput.style.height = 'auto'; // Reset height
+  userInput.style.height = 'auto'; 
   appendMessage("user", text);
   chatHistory.push({ role: "user", content: text });
-  
   await askKiKi(chatHistory, false);
 };
 
-// Auto-expand textarea
 userInput.addEventListener('input', function() {
   this.style.height = 'auto';
   this.style.height = (this.scrollHeight) + 'px';
-  if(this.value === '') this.style.height = 'auto';
 });
 
-// DONE BUTTON
+// 💾 "I AM DONE" LOGIC
 doneBtn.onclick = async () => {
-  appendMessage("assistant", "Understood. Logging your thoughts now, Boss.");
+  appendMessage("assistant", "Affirmative. Finalizing session log.");
 
   const sessionOnly = chatHistory.filter(msg => msg.role !== "system");
+  const nepalTime = getNepaliTime();
 
+  // Prompt tailored for a factual, non-emotional summary
   const diaryPrompt = { 
     role: "user", 
     content: `
-      Summarize the Boss's day/mood based on the conversation above.
-      Write it as a first-person diary entry (as if YOU are the Boss).
-      Keep it factual, raw, and realistic. No fluff.
+      Create a concise, factual summary of this session for the database logs. 
+      Focus on tasks discussed or information exchanged. No emotional language.
     ` 
   };
 
@@ -329,27 +386,24 @@ doneBtn.onclick = async () => {
   const diaryEntry = await askKiKi(finalPayload, true);
 
   if (diaryEntry) {
-    appendMessage("assistant", "<i>" + diaryEntry + "</i>");
-    appendMessage("assistant", "Saving to database...");
+    appendMessage("assistant", "<i>Log entry generated. Committing to database...</i>");
     
-    const now = new Date();
     const { error } = await supabase.from("diary_entries").insert({
       diary_text: diaryEntry,
-      entry_date: now.toISOString(), 
-      entry_time: now.toLocaleTimeString('en-US', { hour12: false }),
-      year: now.getFullYear(),
-      month: now.getMonth() + 1, 
-      month_name: now.toLocaleString('default', { month: 'long' }) 
+      entry_date: nepalTime.toISOString(), 
+      entry_time: nepalTime.toLocaleTimeString('en-US', { hour12: false }),
+      year: nepalTime.getFullYear(),
+      month: nepalTime.getMonth() + 1, 
+      month_name: nepalTime.toLocaleString('default', { month: 'long' }) 
     });
 
     if (error) {
-      appendMessage("assistant", "Save failed. " + error.message);
+      appendMessage("assistant", "FAILURE: Database rejection. " + error.message);
     } else {
-      appendMessage("assistant", "Log saved successfully, Boss.");
+      appendMessage("assistant", "SUCCESS: Session logged.");
     }
   }
 };
-
 </script>
 </body>
 </html>
