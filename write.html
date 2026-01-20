@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>KiKi - Command</title>
+<style>
+  :root {
+    --bg-dark: #05050a;
+    --ki-blue: #88ccff;
+    --user-green: #aaffaa;
+    --glass: rgba(20, 20, 30, 0.6);
+    --border: rgba(136, 204, 255, 0.15);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "Segoe UI", "Roboto", sans-serif;
+    background: #08080c;
+    color: white;
+    /* dvh handles mobile browser address bars better */
+    height: 100dvh; 
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Header */
+  header {
+    padding: 15px 0;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: rgba(5, 5, 10, 0.8);
+    backdrop-filter: blur(5px);
+    flex-shrink: 0;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 300;
+    letter-spacing: 3px;
+    color: var(--ki-blue);
+    text-transform: uppercase;
+    margin: 0;
+  }
+  
+  .status {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.3);
+    margin-top: 2px;
+    letter-spacing: 1px;
+  }
+
+  /* Chat Box */
+  #chat {
+    flex: 1;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+  }
+
+  .msg {
+    max-width: 88%;
+    line-height: 1.5;
+    font-size: 0.95rem;
+    padding: 12px 16px;
+    border-radius: 8px;
+    word-wrap: break-word;
+  }
+
+  .ai {
+    align-self: flex-start;
+    background: rgba(30, 30, 45, 0.5);
+    color: var(--ki-blue);
+    border-left: 3px solid var(--ki-blue);
+  }
+
+  .user {
+    align-self: flex-end;
+    background: rgba(20, 40, 20, 0.5);
+    color: var(--user-green);
+    border-right: 3px solid var(--user-green);
+  }
+
+  /* Input Area - Fixed for Mobile */
+  .input-area {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    background: #0f0f15;
+    padding: 15px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0; 
+  }
+
+  textarea {
+    width: 100%;
+    background: #050508;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    resize: none;
+    font-family: inherit;
+    padding: 10px;
+  }
+  
+  textarea::placeholder {
+    color: rgba(255,255,255,0.15);
+  }
+
+  .controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  button {
+    background: transparent;
+    border: 1px solid var(--ki-blue);
+    color: var(--ki-blue);
+    padding: 8px 20px;
+    border-radius: 4px; /* Sharper edges for professional look */
+    cursor: pointer;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+
+  button:active {
+    background: var(--ki-blue);
+    color: #000;
+  }
+
+  #doneBtn {
+    border-color: #555;
+    color: #888;
+  }
+
+  /* Mobile Tweaks */
+  @media (max-width: 600px) {
+    h1 { font-size: 1.2rem; }
+    #chat { padding: 15px; }
+    .msg { font-size: 0.9rem; padding: 10px 14px; }
+    .input-area { padding: 10px; }
+    button { padding: 8px 14px; font-size: 0.75rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>KiKi</h1>
+  <div class="status">Awaiting Orders</div>
+</header>
+
+<div id="chat"></div>
+
+<div class="input-area">
+  <textarea id="userInput" placeholder="What are your orders, Boss?" rows="1"></textarea>
+  <div class="controls">
+    <button id="doneBtn">Log & Save</button>
+    <button id="sendBtn">Execute</button>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabase = createClient("https://fjvajzjaqfrwrvgotjvt.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqdmFqemphcWZyd3J2Z290anZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MjY1NzUsImV4cCI6MjA4NDUwMjU3NX0.BHUUf57gi7Knvoc_DG_6B-hYuUzMS6TC_Lfjvf56rlI");
+
+// ⚠️ API KEY
+const API_KEY = "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"; 
+
+const chatDiv = document.getElementById("chat");
+const userInput = document.getElementById("userInput");
+const sendBtn = document.getElementById("sendBtn");
+const doneBtn = document.getElementById("doneBtn");
+
+// 🌙 KIKI'S SOUL (UPDATED FOR RESPECT)
+const systemInstruction = { role: "system", content: `
+You are KiKi.
+1. HIERARCHY: The user is "Boss". You are the loyal, dutiful subordinate.
+2. TONE: Professional, concise, respectful, and stoic. NOT overly friendly. NOT bubbly. NOT emotional.
+3. LANGUAGE: English. Use Nepali only for respectful affirmations (e.g., "Huss Boss", "Namaste Boss").
+4. CONTEXT: You know Boss supports Real Madrid and Mbappé. Mention this only if he asks or needs a victory boost.
+5. GOAL: Execute commands, listen to his thoughts, and respond with deference. Do not try to be his 'buddy'. Be his right-hand support.
+` };
+
+let chatHistory = [ systemInstruction ];
+
+function appendMessage(role, text) {
+  const div = document.createElement("div");
+  div.className = `msg ${role === 'assistant' ? 'ai' : 'user'}`;
+  div.innerHTML = text.replace(/\n/g, "<br>");
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+// MAIN CHAT FUNCTION
+async function askKiKi(messagesPayload, isInternal = false) {
+  if(!isInternal) {
+    const loadingDiv = document.createElement("div");
+    loadingDiv.className = "msg ai";
+    loadingDiv.textContent = "Processing...";
+    loadingDiv.id = "loading";
+    chatDiv.appendChild(loadingDiv);
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+  }
+
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: { 
+        "Authorization": `Bearer ${API_KEY}`, 
+        "Content-Type": "application/json" 
+      },
+      body: JSON.stringify({
+        model: "xiaomi/mimo-v2-flash:free", 
+        messages: messagesPayload,
+        temperature: 0.6 // Lower creativity for more serious, respectful tone
+      })
+    });
+
+    const data = await res.json();
+    
+    if(document.getElementById("loading")) document.getElementById("loading").remove();
+
+    if (!data.choices || data.choices.length === 0) {
+      if(!isInternal) appendMessage("assistant", "System error. Apologies, Boss.");
+      return null;
+    }
+
+    const reply = data.choices[0].message.content;
+    
+    if (!isInternal) {
+      chatHistory.push({ role: "assistant", content: reply });
+      appendMessage("assistant", reply);
+    }
+
+    return reply;
+
+  } catch (err) {
+    if(document.getElementById("loading")) document.getElementById("loading").remove();
+    if(!isInternal) appendMessage("assistant", "Connection failure. Retrying...");
+    return null;
+  }
+}
+
+// 🌙 STARTUP LOGIC
+window.onload = async () => {
+  const hour = new Date().getHours();
+  let timeContext = hour < 12 ? "Morning" : (hour < 17 ? "Afternoon" : "Evening");
+
+  let memoryContext = "No prior logs.";
+  const { data } = await supabase
+    .from('diary_entries')
+    .select('diary_text')
+    .order('entry_date', { ascending: false })
+    .limit(1);
+
+  if (data && data.length > 0) memoryContext = data[0].diary_text.substring(0, 200) + "...";
+
+  // Startup Prompt - Respectful
+  const hiddenPrompt = `
+    Time: ${timeContext}.
+    Last Report: ${memoryContext}.
+    Task: Greet Boss respectfully. Keep it short. Acknowledge previous status briefly. Await orders.
+  `;
+  
+  let startupHistory = [...chatHistory, { role: "user", content: hiddenPrompt }];
+  
+  const reply = await askKiKi(startupHistory, true);
+  if(reply) {
+    chatHistory.push({ role: "assistant", content: reply });
+    appendMessage("assistant", reply);
+  }
+};
+
+// SEND BUTTON
+sendBtn.onclick = async () => {
+  const text = userInput.value.trim();
+  if(!text) return;
+  
+  userInput.value = "";
+  userInput.style.height = 'auto'; // Reset height
+  appendMessage("user", text);
+  chatHistory.push({ role: "user", content: text });
+  
+  await askKiKi(chatHistory, false);
+};
+
+// Auto-expand textarea
+userInput.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = (this.scrollHeight) + 'px';
+  if(this.value === '') this.style.height = 'auto';
+});
+
+// DONE BUTTON
+doneBtn.onclick = async () => {
+  appendMessage("assistant", "Understood. Logging your thoughts now, Boss.");
+
+  const sessionOnly = chatHistory.filter(msg => msg.role !== "system");
+
+  const diaryPrompt = { 
+    role: "user", 
+    content: `
+      Summarize the Boss's day/mood based on the conversation above.
+      Write it as a first-person diary entry (as if YOU are the Boss).
+      Keep it factual, raw, and realistic. No fluff.
+    ` 
+  };
+
+  const finalPayload = [...sessionOnly, diaryPrompt];
+  const diaryEntry = await askKiKi(finalPayload, true);
+
+  if (diaryEntry) {
+    appendMessage("assistant", "<i>" + diaryEntry + "</i>");
+    appendMessage("assistant", "Saving to database...");
+    
+    const now = new Date();
+    const { error } = await supabase.from("diary_entries").insert({
+      diary_text: diaryEntry,
+      entry_date: now.toISOString(), 
+      entry_time: now.toLocaleTimeString('en-US', { hour12: false }),
+      year: now.getFullYear(),
+      month: now.getMonth() + 1, 
+      month_name: now.toLocaleString('default', { month: 'long' }) 
+    });
+
+    if (error) {
+      appendMessage("assistant", "Save failed. " + error.message);
+    } else {
+      appendMessage("assistant", "Log saved successfully, Boss.");
+    }
+  }
+};
+
+</script>
+</body>
+</html>
